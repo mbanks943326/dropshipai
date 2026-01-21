@@ -6,6 +6,7 @@ import { authenticate, requireSubscription, optionalAuth } from '../middleware/a
 import { searchAmazon } from '../services/amazon.service.js';
 import { searchAliExpress } from '../services/aliexpress.service.js';
 import { searchTemu } from '../services/temu.service.js';
+import { searchEbay } from '../services/ebay.service.js';
 import { analyzeProduct, getWinningProducts } from '../services/gemini.service.js';
 import { trackUsage, checkUsageLimit } from '../services/usage.service.js';
 import NodeCache from 'node-cache';
@@ -18,7 +19,7 @@ const cache = new NodeCache({ stdTTL: 3600 }); // 1 hour cache
 // @access  Private (with usage limits)
 router.get('/search', authenticate, [
     query('q').notEmpty().withMessage('Search query is required'),
-    query('source').optional().isIn(['amazon', 'aliexpress', 'temu', 'all']),
+    query('source').optional().isIn(['amazon', 'aliexpress', 'temu', 'ebay', 'all']),
     query('minPrice').optional({ checkFalsy: true }).isFloat({ min: 0 }),
     query('maxPrice').optional({ checkFalsy: true }).isFloat({ min: 0 }),
     query('minRating').optional({ checkFalsy: true }).isFloat({ min: 0, max: 5 }),
@@ -72,6 +73,11 @@ router.get('/search', authenticate, [
         if (source === 'all' || source === 'temu') {
             const temuProducts = await searchTemu(searchQuery, filters);
             products = products.concat(temuProducts);
+        }
+
+        if (source === 'all' || source === 'ebay') {
+            const ebayProducts = await searchEbay(searchQuery, filters);
+            products = products.concat(ebayProducts);
         }
     } catch (error) {
         console.error('Product search error:', error);
