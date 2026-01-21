@@ -217,46 +217,21 @@ async function scrapeAmazonProducts(query, filters) {
             });
         });
 
-        // If scraping failed or no results, return mock data
+        // Log if no products found
         if (products.length === 0) {
-            console.log('Amazon scraping returned no results, using mock data');
-            return getMockAmazonProducts(query, filters);
+            console.warn('Amazon: No products found for query:', query);
         }
 
         return products;
 
     } catch (error) {
         console.error('Amazon scraping error:', error.message);
-        // Return mock data as final fallback
-        return getMockAmazonProducts(query, filters);
+        // No mock data - only real products
+        console.warn('Amazon: No products found. Scraping may be blocked.');
+        return [];
     }
 }
 
-// Mock data as final fallback
-function getMockAmazonProducts(query, filters) {
-    const mockProducts = [];
-    const basePrice = 15 + Math.random() * 50;
-
-    for (let i = 1; i <= (filters.limit || 10); i++) {
-        mockProducts.push({
-            source: 'amazon',
-            externalId: `MOCK${Date.now()}${i}`,
-            title: `${query} - Quality Product ${i}`,
-            description: `High-quality ${query} product. Excellent features and great value.`,
-            price: parseFloat((basePrice + i * 3).toFixed(2)),
-            originalPrice: parseFloat((basePrice + i * 3 + 8).toFixed(2)),
-            currency: 'USD',
-            mainImage: `https://via.placeholder.com/400x400/FF9900/FFFFFF?text=${encodeURIComponent(query)}`,
-            images: [`https://via.placeholder.com/400x400/FF9900/FFFFFF?text=${encodeURIComponent(query)}`],
-            rating: parseFloat((3.8 + Math.random() * 1.2).toFixed(1)),
-            reviewsCount: Math.floor(Math.random() * 3000) + 200,
-            salesCount: Math.floor(Math.random() * 5000) + 300,
-            category: filters.category || 'General',
-            supplierUrl: `https://www.amazon.com/s?k=${encodeURIComponent(query)}`
-        });
-    }
-
-    return mockProducts;
-}
+// No mock data - this app only uses real products
 
 export default { searchAmazon };

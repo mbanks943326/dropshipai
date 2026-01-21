@@ -169,42 +169,18 @@ async function scrapeAliExpressProducts(query, filters) {
         });
 
         if (products.length === 0) {
-            return getMockAliExpressProducts(query, filters);
+            console.warn('AliExpress: No products found for query:', query);
         }
 
         return products;
 
     } catch (error) {
         console.error('AliExpress scraping error:', error.message);
-        return getMockAliExpressProducts(query, filters);
+        console.warn('AliExpress: No products found. Scraping may be blocked.');
+        return [];
     }
 }
 
-// Mock data fallback
-function getMockAliExpressProducts(query, filters) {
-    const mockProducts = [];
-    const basePrice = 5 + Math.random() * 30;
-
-    for (let i = 1; i <= (filters.limit || 10); i++) {
-        mockProducts.push({
-            source: 'aliexpress',
-            externalId: `ALI${Date.now()}${i}`,
-            title: `${query} - Best Seller ${i}`,
-            description: `Popular ${query} with fast shipping. Great quality at amazing price.`,
-            price: parseFloat((basePrice + i * 2).toFixed(2)),
-            originalPrice: parseFloat((basePrice + i * 2 + 5).toFixed(2)),
-            currency: 'USD',
-            mainImage: `https://via.placeholder.com/400x400/E43225/FFFFFF?text=${encodeURIComponent(query)}`,
-            images: [`https://via.placeholder.com/400x400/E43225/FFFFFF?text=${encodeURIComponent(query)}`],
-            rating: parseFloat((4.2 + Math.random() * 0.7).toFixed(1)),
-            reviewsCount: Math.floor(Math.random() * 4000) + 100,
-            salesCount: Math.floor(Math.random() * 8000) + 500,
-            category: filters.category || 'General',
-            supplierUrl: `https://www.aliexpress.com/wholesale?SearchText=${encodeURIComponent(query)}`
-        });
-    }
-
-    return mockProducts;
-}
+// No mock data - this app only uses real products
 
 export default { searchAliExpress };
