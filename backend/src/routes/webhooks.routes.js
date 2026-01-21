@@ -126,4 +126,49 @@ router.post('/woocommerce', async (req, res) => {
     }
 });
 
+// @route   GET/POST /api/webhooks/ebay/deletion
+// @desc    Handle eBay Marketplace Account Deletion notifications
+// @access  Public (verified by eBay challenge)
+const EBAY_VERIFICATION_TOKEN = process.env.EBAY_VERIFICATION_TOKEN || 'dropshipai-ebay-verification-2024';
+
+// GET request - eBay uses this to verify the endpoint
+router.get('/ebay/deletion', async (req, res) => {
+    const challengeCode = req.query.challenge_code;
+
+    if (challengeCode) {
+        // eBay is verifying the endpoint
+        // Create the response hash
+        const crypto = await import('crypto');
+        const hash = crypto.createHash('sha256');
+        hash.update(challengeCode);
+        hash.update(EBAY_VERIFICATION_TOKEN);
+        hash.update(process.env.EBAY_ENDPOINT_URL || 'https://dropshipai-backend.onrender.com/api/webhooks/ebay/deletion');
+        const responseHash = hash.digest('hex');
+
+        res.json({ challengeResponse: responseHash });
+    } else {
+        res.status(200).send('eBay webhook endpoint active');
+    }
+});
+
+// POST request - eBay sends account deletion notifications here
+router.post('/ebay/deletion', async (req, res) => {
+    console.log('eBay Account Deletion Notification:', req.body);
+
+    try {
+        const notification = req.body;
+
+        // Handle the account deletion notification
+        if (notification && notification.metadata) {
+            console.log('User requested account deletion:', notification.metadata);
+            // In production: delete user data related to this eBay account
+        }
+
+        res.status(200).json({ status: 'received' });
+    } catch (error) {
+        console.error('eBay webhook error:', error);
+        res.status(500).json({ error: 'Webhook handler failed' });
+    }
+});
+
 export default router;
