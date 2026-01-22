@@ -25,6 +25,17 @@ export default function Dashboard() {
         }
     };
 
+    // Calculate real percentage changes (show 0% or N/A when no data)
+    const calculateChange = (current, previous) => {
+        if (!current || current === 0) return { change: '0%', type: 'neutral' };
+        if (!previous || previous === 0) return { change: 'N/A', type: 'neutral' };
+        const changeVal = ((current - previous) / previous) * 100;
+        return {
+            change: `${changeVal >= 0 ? '+' : ''}${changeVal.toFixed(1)}%`,
+            type: changeVal >= 0 ? 'positive' : 'negative'
+        };
+    };
+
     const stats = [
         {
             name: 'Total Revenue',
@@ -32,8 +43,7 @@ export default function Dashboard() {
             format: 'currency',
             icon: HiCurrencyDollar,
             color: 'from-green-500 to-emerald-500',
-            change: '+12.5%',
-            changeType: 'positive'
+            ...calculateChange(data?.overview?.totalRevenue, data?.overview?.previousRevenue)
         },
         {
             name: 'Total Profit',
@@ -41,8 +51,7 @@ export default function Dashboard() {
             format: 'currency',
             icon: HiTrendingUp,
             color: 'from-blue-500 to-cyan-500',
-            change: '+8.2%',
-            changeType: 'positive'
+            ...calculateChange(data?.overview?.totalProfit, data?.overview?.previousProfit)
         },
         {
             name: 'Total Orders',
@@ -50,8 +59,7 @@ export default function Dashboard() {
             format: 'number',
             icon: HiShoppingCart,
             color: 'from-purple-500 to-pink-500',
-            change: '+23%',
-            changeType: 'positive'
+            ...calculateChange(data?.overview?.totalOrders, data?.overview?.previousOrders)
         },
         {
             name: 'Pending Orders',
@@ -59,8 +67,7 @@ export default function Dashboard() {
             format: 'number',
             icon: HiClock,
             color: 'from-orange-500 to-amber-500',
-            change: '-5%',
-            changeType: 'negative'
+            ...calculateChange(data?.overview?.pendingOrders, data?.overview?.previousPending)
         }
     ];
 
@@ -101,8 +108,8 @@ export default function Dashboard() {
                             key={p}
                             onClick={() => setPeriod(p)}
                             className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors ${period === p
-                                    ? 'bg-primary-500 text-white'
-                                    : 'bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400 hover:bg-slate-200 dark:hover:bg-slate-700'
+                                ? 'bg-primary-500 text-white'
+                                : 'bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400 hover:bg-slate-200 dark:hover:bg-slate-700'
                                 }`}
                         >
                             {p === '7d' ? '7 Days' : p === '30d' ? '30 Days' : '90 Days'}
@@ -127,12 +134,17 @@ export default function Dashboard() {
                             </div>
                         </div>
                         <div className="flex items-center mt-4">
-                            {stat.changeType === 'positive' ? (
+                            {stat.type === 'positive' ? (
                                 <HiArrowUp className="w-4 h-4 text-green-500" />
-                            ) : (
+                            ) : stat.type === 'negative' ? (
                                 <HiArrowDown className="w-4 h-4 text-red-500" />
+                            ) : (
+                                <span className="w-4 h-4" />
                             )}
-                            <span className={`text-sm font-medium ${stat.changeType === 'positive' ? 'text-green-500' : 'text-red-500'}`}>
+                            <span className={`text-sm font-medium ${stat.type === 'positive' ? 'text-green-500' :
+                                stat.type === 'negative' ? 'text-red-500' :
+                                    'text-slate-400'
+                                }`}>
                                 {stat.change}
                             </span>
                             <span className="text-sm text-slate-500 dark:text-slate-400 ml-2">vs last period</span>
@@ -222,9 +234,9 @@ export default function Dashboard() {
                                         </td>
                                         <td className="py-3">
                                             <span className={`badge ${order.status === 'delivered' ? 'badge-success' :
-                                                    order.status === 'shipped' ? 'badge-info' :
-                                                        order.status === 'pending' ? 'badge-warning' :
-                                                            'badge-danger'
+                                                order.status === 'shipped' ? 'badge-info' :
+                                                    order.status === 'pending' ? 'badge-warning' :
+                                                        'badge-danger'
                                                 }`}>
                                                 {order.status}
                                             </span>
