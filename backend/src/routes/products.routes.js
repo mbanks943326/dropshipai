@@ -344,7 +344,6 @@ router.get('/imported/list', authenticate, asyncHandler(async (req, res) => {
         .from('imported_products')
         .select(`
       *,
-      product:products(*),
       store:stores(id, store_name, platform)
     `)
         .eq('user_id', req.user.id)
