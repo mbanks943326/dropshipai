@@ -4,13 +4,16 @@ import toast from 'react-hot-toast';
 import { HiSearch, HiFilter, HiStar, HiShoppingCart, HiExternalLink, HiSparkles, HiCheck } from 'react-icons/hi';
 
 export default function ProductSearch() {
-    const [query, setQuery] = useState('');
-    const [source, setSource] = useState('all');
-    const [products, setProducts] = useState([]);
+    // Load saved search from sessionStorage
+    const savedSearch = JSON.parse(sessionStorage.getItem('productSearch') || '{}');
+
+    const [query, setQuery] = useState(savedSearch.query || '');
+    const [source, setSource] = useState(savedSearch.source || 'all');
+    const [products, setProducts] = useState(savedSearch.products || []);
     const [loading, setLoading] = useState(false);
     const [stores, setStores] = useState([]);
     const [importingProducts, setImportingProducts] = useState(new Set());
-    const [filters, setFilters] = useState({
+    const [filters, setFilters] = useState(savedSearch.filters || {
         minPrice: '',
         maxPrice: '',
         minRating: '',
@@ -48,8 +51,18 @@ export default function ProductSearch() {
                 source,
                 ...filters
             });
-            setProducts(response.data.data.products);
-            if (response.data.data.products.length === 0) {
+            const searchResults = response.data.data.products;
+            setProducts(searchResults);
+
+            // Save search to sessionStorage for persistence
+            sessionStorage.setItem('productSearch', JSON.stringify({
+                query,
+                source,
+                filters,
+                products: searchResults
+            }));
+
+            if (searchResults.length === 0) {
                 toast('No products found. Try different keywords.');
             }
         } catch (error) {
