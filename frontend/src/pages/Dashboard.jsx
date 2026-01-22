@@ -27,9 +27,14 @@ export default function Dashboard() {
 
     // Calculate real percentage changes (show 0% or N/A when no data)
     const calculateChange = (current, previous) => {
-        if (!current || current === 0) return null; // Return null instead of values
-        if (!previous || previous === 0) return null;
-        const changeVal = ((current - previous) / previous) * 100;
+        const curr = Number(current);
+        const prev = Number(previous);
+
+        // Check if values are 0, null, undefined, or NaN
+        if (!curr || curr === 0 || isNaN(curr)) return null;
+        if (!prev || prev === 0 || isNaN(prev)) return null;
+
+        const changeVal = ((curr - prev) / prev) * 100;
         return {
             change: `${changeVal >= 0 ? '+' : ''}${changeVal.toFixed(1)}%`,
             type: changeVal >= 0 ? 'positive' : 'negative'
