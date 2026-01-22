@@ -133,22 +133,31 @@ export default function Dashboard() {
                                 <stat.icon className="w-6 h-6 text-white" />
                             </div>
                         </div>
-                        <div className="flex items-center mt-4">
-                            {stat.type === 'positive' ? (
-                                <HiArrowUp className="w-4 h-4 text-green-500" />
-                            ) : stat.type === 'negative' ? (
-                                <HiArrowDown className="w-4 h-4 text-red-500" />
-                            ) : (
-                                <span className="w-4 h-4" />
-                            )}
-                            <span className={`text-sm font-medium ${stat.type === 'positive' ? 'text-green-500' :
-                                stat.type === 'negative' ? 'text-red-500' :
-                                    'text-slate-400'
-                                }`}>
-                                {stat.change}
-                            </span>
-                            <span className="text-sm text-slate-500 dark:text-slate-400 ml-2">vs last period</span>
-                        </div>
+                        {/* Only show percentage change if there's actual data */}
+                        {stat.value > 0 && (
+                            <div className="flex items-center mt-4">
+                                {stat.type === 'positive' ? (
+                                    <HiArrowUp className="w-4 h-4 text-green-500" />
+                                ) : stat.type === 'negative' ? (
+                                    <HiArrowDown className="w-4 h-4 text-red-500" />
+                                ) : (
+                                    <span className="w-4 h-4" />
+                                )}
+                                <span className={`text-sm font-medium ${stat.type === 'positive' ? 'text-green-500' :
+                                    stat.type === 'negative' ? 'text-red-500' :
+                                        'text-slate-400'
+                                    }`}>
+                                    {stat.change}
+                                </span>
+                                <span className="text-sm text-slate-500 dark:text-slate-400 ml-2">vs last period</span>
+                            </div>
+                        )}
+                        {/* Show "No data yet" when values are 0 */}
+                        {stat.value === 0 && (
+                            <div className="flex items-center mt-4">
+                                <span className="text-sm text-slate-400">No data yet</span>
+                            </div>
+                        )}
                     </div>
                 ))}
             </div>
