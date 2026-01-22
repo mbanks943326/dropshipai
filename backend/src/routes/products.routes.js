@@ -232,7 +232,7 @@ router.post('/:id/analyze', authenticate, requireSubscription('pro'), asyncHandl
 // @desc    Import product to user's store
 // @access  Private
 router.post('/import', authenticate, [
-    body('productId').notEmpty().withMessage('Product ID is required'),
+    body('productData').notEmpty().withMessage('Product data is required'),
     body('storeId').notEmpty().withMessage('Store ID is required'),
     body('customTitle').optional().trim(),
     body('customDescription').optional().trim(),
@@ -245,7 +245,7 @@ router.post('/import', authenticate, [
     }
 
     const {
-        productId,
+        productData,
         storeId,
         customTitle,
         customDescription,
@@ -271,16 +271,20 @@ router.post('/import', authenticate, [
         throw new AppError('Store not found', 404, 'STORE_NOT_FOUND');
     }
 
-    // Get product
-    const { data: product } = await supabaseAdmin
-        .from('products')
-        .select('*')
-        .eq('id', productId)
-        .single();
-
-    if (!product) {
-        throw new AppError('Product not found', 404, 'PRODUCT_NOT_FOUND');
-    }
+    // Extract product info from productData
+    const product = {
+        title: productData.title,
+        description: productData.description || '',
+        price: productData.price || 0,
+        mainImage: productData.mainImage || productData.image,
+        images: productData.images || [productData.mainImage],
+        source: productData.source,
+        externalId: productData.externalId,
+        supplierUrl: productData.supplierUrl,
+        rating: productData.rating,
+        reviewsCount: productData.reviewsCount,
+        salesCount: productData.salesCount
+    };
 
     // Calculate prices
     const costPrice = product.price;
@@ -293,20 +297,29 @@ router.post('/import', authenticate, [
         .insert({
             user_id: req.user.id,
             store_id: storeId,
-            product_id: productId,
+            source: product.source,
+            external_id: product.externalId,
             custom_title: customTitle || product.title,
             custom_description: customDescription || product.description,
+            original_title: product.title,
+            main_image: product.mainImage,
+            images: product.images,
+            supplier_url: product.supplierUrl,
             custom_price: sellingPrice,
             cost_price: costPrice,
             markup_percentage: markupPercentage,
             profit_margin: profitMargin,
+            rating: product.rating,
+            reviews_count: product.reviewsCount,
+            sales_count: product.salesCount,
             status: 'draft'
         })
         .select()
         .single();
 
     if (error) {
-        throw new AppError('Failed to import product', 500);
+        console.error('Import error:', error);
+        throw new AppError('Failed to import product: ' + error.message, 500);
     }
 
     // Track usage
