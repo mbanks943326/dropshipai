@@ -27,8 +27,8 @@ export default function Dashboard() {
 
     // Calculate real percentage changes (show 0% or N/A when no data)
     const calculateChange = (current, previous) => {
-        if (!current || current === 0) return { change: '0%', type: 'neutral' };
-        if (!previous || previous === 0) return { change: 'N/A', type: 'neutral' };
+        if (!current || current === 0) return null; // Return null instead of values
+        if (!previous || previous === 0) return null;
         const changeVal = ((current - previous) / previous) * 100;
         return {
             change: `${changeVal >= 0 ? '+' : ''}${changeVal.toFixed(1)}%`,
@@ -43,7 +43,7 @@ export default function Dashboard() {
             format: 'currency',
             icon: HiCurrencyDollar,
             color: 'from-green-500 to-emerald-500',
-            ...calculateChange(data?.overview?.totalRevenue, data?.overview?.previousRevenue)
+            ...(calculateChange(data?.overview?.totalRevenue, data?.overview?.previousRevenue) || {})
         },
         {
             name: 'Total Profit',
@@ -51,7 +51,7 @@ export default function Dashboard() {
             format: 'currency',
             icon: HiTrendingUp,
             color: 'from-blue-500 to-cyan-500',
-            ...calculateChange(data?.overview?.totalProfit, data?.overview?.previousProfit)
+            ...(calculateChange(data?.overview?.totalProfit, data?.overview?.previousProfit) || {})
         },
         {
             name: 'Total Orders',
@@ -59,7 +59,7 @@ export default function Dashboard() {
             format: 'number',
             icon: HiShoppingCart,
             color: 'from-purple-500 to-pink-500',
-            ...calculateChange(data?.overview?.totalOrders, data?.overview?.previousOrders)
+            ...(calculateChange(data?.overview?.totalOrders, data?.overview?.previousOrders) || {})
         },
         {
             name: 'Pending Orders',
@@ -67,7 +67,7 @@ export default function Dashboard() {
             format: 'number',
             icon: HiClock,
             color: 'from-orange-500 to-amber-500',
-            ...calculateChange(data?.overview?.pendingOrders, data?.overview?.previousPending)
+            ...(calculateChange(data?.overview?.pendingOrders, data?.overview?.previousPending) || {})
         }
     ];
 
@@ -134,7 +134,7 @@ export default function Dashboard() {
                             </div>
                         </div>
                         {/* Only show percentage change if there's actual data */}
-                        {stat.value > 0 && (
+                        {stat.change ? (
                             <div className="flex items-center mt-4">
                                 {stat.type === 'positive' ? (
                                     <HiArrowUp className="w-4 h-4 text-green-500" />
@@ -151,9 +151,7 @@ export default function Dashboard() {
                                 </span>
                                 <span className="text-sm text-slate-500 dark:text-slate-400 ml-2">vs last period</span>
                             </div>
-                        )}
-                        {/* Show "No data yet" when values are 0 */}
-                        {stat.value === 0 && (
+                        ) : (
                             <div className="flex items-center mt-4">
                                 <span className="text-sm text-slate-400">No data yet</span>
                             </div>
