@@ -1,13 +1,15 @@
-import { useState } from 'react';
-import { productsAPI } from '../services/api';
+import { useState, useEffect } from 'react';
+import { productsAPI, storesAPI } from '../services/api';
 import toast from 'react-hot-toast';
-import { HiSearch, HiFilter, HiStar, HiShoppingCart, HiExternalLink, HiSparkles } from 'react-icons/hi';
+import { HiSearch, HiFilter, HiStar, HiShoppingCart, HiExternalLink, HiSparkles, HiCheck } from 'react-icons/hi';
 
 export default function ProductSearch() {
     const [query, setQuery] = useState('');
     const [source, setSource] = useState('all');
     const [products, setProducts] = useState([]);
     const [loading, setLoading] = useState(false);
+    const [stores, setStores] = useState([]);
+    const [importingProducts, setImportingProducts] = useState(new Set());
     const [filters, setFilters] = useState({
         minPrice: '',
         maxPrice: '',
@@ -15,6 +17,22 @@ export default function ProductSearch() {
         category: ''
     });
     const [showFilters, setShowFilters] = useState(false);
+
+    // Fetch stores on mount
+    useEffect(() => {
+        fetchStores();
+    }, []);
+
+    const fetchStores = async () => {
+        try {
+            const response = await storesAPI.getAll();
+            if (response.data.success) {
+                setStores(response.data.data.stores || []);
+            }
+        } catch (error) {
+            console.error('Failed to fetch stores:', error);
+        }
+    };
 
     const handleSearch = async (e) => {
         e.preventDefault();
@@ -42,7 +60,35 @@ export default function ProductSearch() {
     };
 
     const handleImport = async (product) => {
-        toast.success('Go to Stores to connect a store first, then import products.');
+        // Check if there are connected stores
+        if (stores.length === 0) {
+            toast.error('Please connect a store first in the Stores section.');
+            return;
+        }
+
+        // Mark product as importing
+        setImportingProducts(prev => new Set([...prev, product.externalId]));
+
+        try {
+            const response = await productsAPI.import({
+                productData: product,
+                storeId: stores[0].id // Use first available store
+            });
+
+            if (response.data.success) {
+                toast.success('Product imported successfully!');
+            } else {
+                toast.error('Failed to import product');
+            }
+        } catch (error) {
+            toast.error(error.response?.data?.error?.message || 'Failed to import product');
+        } finally {
+            setImportingProducts(prev => {
+                const newSet = new Set(prev);
+                newSet.delete(product.externalId);
+                return newSet;
+            });
+        }
     };
 
     return (
@@ -167,8 +213,8 @@ export default function ProductSearch() {
                                     className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
                                 />
                                 <span className={`absolute top-3 left-3 px-2 py-1 rounded-lg text-xs font-medium ${product.source === 'amazon' ? 'bg-orange-500 text-white' :
-                                        product.source === 'aliexpress' ? 'bg-red-500 text-white' :
-                                            'bg-purple-500 text-white'
+                                    product.source === 'aliexpress' ? 'bg-red-500 text-white' :
+                                        'bg-purple-500 text-white'
                                     }`}>
                                     {product.source.charAt(0).toUpperCase() + product.source.slice(1)}
                                 </span>
