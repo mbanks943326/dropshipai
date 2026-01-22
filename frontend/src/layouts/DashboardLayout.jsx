@@ -20,6 +20,7 @@ import {
     HiBell,
     HiUser
 } from 'react-icons/hi';
+import NotificationsDropdown from '../components/NotificationsDropdown';
 
 const navigation = [
     { name: 'Dashboard', href: '/dashboard', icon: HiHome },
@@ -160,10 +161,7 @@ export default function DashboardLayout() {
                             </button>
 
                             {/* Notifications */}
-                            <button className="relative p-2 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-700">
-                                <HiBell className="w-5 h-5" />
-                                <span className="absolute top-1 right-1 w-2 h-2 bg-danger-500 rounded-full"></span>
-                            </button>
+                            <NotificationsDropdown />
 
                             {/* Profile dropdown */}
                             <div className="relative group">

@@ -18,6 +18,7 @@ import subscriptionRoutes from './routes/subscriptions.routes.js';
 import aiRoutes from './routes/ai.routes.js';
 import analyticsRoutes from './routes/analytics.routes.js';
 import webhookRoutes from './routes/webhooks.routes.js';
+import notificationRoutes from './routes/notifications.routes.js';
 
 // Import middleware
 import { errorHandler } from './middleware/error.middleware.js';
@@ -99,6 +100,7 @@ app.use('/api/subscriptions', subscriptionRoutes);
 app.use('/api/ai', aiRoutes);
 app.use('/api/analytics', analyticsRoutes);
 app.use('/api/webhooks', webhookRoutes);
+app.use('/api/notifications', notificationRoutes);
 
 // 404 handler
 app.use((req, res) => {

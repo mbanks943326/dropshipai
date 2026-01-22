@@ -101,3 +101,10 @@ export const analyticsAPI = {
     getROI: () => api.get('/analytics/roi'),
     export: (type, format) => api.get('/analytics/export', { params: { type, format } }),
 };
+
+export const notificationsAPI = {
+    getAll: (params) => api.get('/notifications', { params }),
+    markAsRead: (id) => api.put(`/notifications/${id}/read`),
+    markAllAsRead: () => api.put('/notifications/read-all'),
+    delete: (id) => api.delete(`/notifications/${id}`),
+};
