@@ -100,14 +100,14 @@ export default function ProductEditModal({ product, onClose, onSave }) {
 
                     {/* Title */}
                     <div>
-                        <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">
+                        <label className="block text-sm font-medium text-slate-300 mb-2">
                             Custom Title
                         </label>
                         <input
                             type="text"
                             value={formData.custom_title}
                             onChange={(e) => setFormData({ ...formData, custom_title: e.target.value })}
-                            className="input-field"
+                            className="w-full px-4 py-2 bg-slate-700 border border-slate-600 rounded-lg text-white placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent"
                             placeholder="Enter custom product title"
                             required
                         />
@@ -115,13 +115,13 @@ export default function ProductEditModal({ product, onClose, onSave }) {
 
                     {/* Description */}
                     <div>
-                        <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">
+                        <label className="block text-sm font-medium text-slate-300 mb-2">
                             Custom Description
                         </label>
                         <textarea
                             value={formData.custom_description}
                             onChange={(e) => setFormData({ ...formData, custom_description: e.target.value })}
-                            className="input-field min-h-[120px]"
+                            className="w-full px-4 py-2 bg-slate-700 border border-slate-600 rounded-lg text-white placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent min-h-[120px]"
                             placeholder="Enter custom product description (optional)"
                             rows={4}
                         />
@@ -134,31 +134,31 @@ export default function ProductEditModal({ product, onClose, onSave }) {
                         <div className="grid grid-cols-2 gap-4">
                             {/* Cost Price (Read-only) */}
                             <div>
-                                <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">
+                                <label className="block text-sm font-medium text-slate-300 mb-2">
                                     Cost Price
                                 </label>
                                 <input
                                     type="text"
                                     value={`$${costPrice.toFixed(2)}`}
-                                    className="input-field bg-slate-100 dark:bg-slate-600"
+                                    className="w-full px-4 py-2 bg-slate-600 border border-slate-500 rounded-lg text-slate-300 cursor-not-allowed"
                                     disabled
                                 />
                             </div>
 
                             {/* Selling Price */}
                             <div>
-                                <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">
+                                <label className="block text-sm font-medium text-slate-300 mb-2">
                                     Selling Price
                                 </label>
                                 <div className="relative">
-                                    <span className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-500">$</span>
+                                    <span className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400">$</span>
                                     <input
                                         type="number"
                                         step="0.01"
                                         min={costPrice}
                                         value={formData.custom_price}
                                         onChange={(e) => handlePriceChange(e.target.value)}
-                                        className="input-field pl-7"
+                                        className="w-full px-4 py-2 pl-7 bg-slate-700 border border-slate-600 rounded-lg text-white placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent"
                                         required
                                     />
                                 </div>
@@ -167,8 +167,8 @@ export default function ProductEditModal({ product, onClose, onSave }) {
 
                         {/* Markup Percentage */}
                         <div>
-                            <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">
-                                Markup Percentage: {formData.markup_percentage}%
+                            <label className="block text-sm font-medium text-slate-300 mb-2">
+                                Markup Percentage: <span className="text-primary-400">{formData.markup_percentage}%</span>
                             </label>
                             <input
                                 type="range"
