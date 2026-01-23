@@ -24,6 +24,45 @@ export default function ImportedProducts() {
         }
     };
 
+    const handleView = (product) => {
+        // TODO: Implement product preview modal
+        toast('Preview feature coming soon!', { icon: '👁️' });
+    };
+
+    const handleEdit = (product) => {
+        // TODO: Implement edit modal
+        toast('Edit feature coming soon!', { icon: '✏️' });
+    };
+
+    const handleSync = async (product) => {
+        try {
+            toast.loading('Publishing product to store...');
+            // TODO: Implement sync logic with store
+            await new Promise(resolve => setTimeout(resolve, 1500)); // Simulated delay
+            toast.dismiss();
+            toast.success('Product published successfully!');
+            fetchProducts();
+        } catch (error) {
+            toast.dismiss();
+            toast.error('Failed to publish product');
+        }
+    };
+
+    const handleDelete = async (productId) => {
+        if (!confirm('Are you sure you want to delete this product?')) return;
+
+        try {
+            toast.loading('Deleting product...');
+            await productsAPI.deleteImported(productId);
+            toast.dismiss();
+            toast.success('Product deleted successfully!');
+            fetchProducts();
+        } catch (error) {
+            toast.dismiss();
+            toast.error('Failed to delete product');
+        }
+    };
+
     const getStatusBadge = (status) => {
         switch (status) {
             case 'active': return 'badge-success';
@@ -66,8 +105,8 @@ export default function ImportedProducts() {
                             key={f}
                             onClick={() => setFilter(f)}
                             className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors ${filter === f
-                                    ? 'bg-primary-500 text-white'
-                                    : 'bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400 hover:bg-slate-200 dark:hover:bg-slate-700'
+                                ? 'bg-primary-500 text-white'
+                                : 'bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400 hover:bg-slate-200 dark:hover:bg-slate-700'
                                 }`}
                         >
                             {f.charAt(0).toUpperCase() + f.slice(1)}
@@ -84,14 +123,14 @@ export default function ImportedProducts() {
                             <div className="flex items-start gap-4">
                                 <div className="w-20 h-20 bg-slate-100 dark:bg-slate-700 rounded-lg overflow-hidden flex-shrink-0">
                                     <img
-                                        src={item.product?.main_image || 'https://via.placeholder.com/80'}
+                                        src={item.main_image || 'https://via.placeholder.com/80'}
                                         alt={item.custom_title}
                                         className="w-full h-full object-cover"
                                     />
                                 </div>
                                 <div className="flex-1 min-w-0">
                                     <h3 className="font-medium text-slate-900 dark:text-white line-clamp-2">
-                                        {item.custom_title || item.product?.title}
+                                        {item.custom_title || item.original_title}
                                     </h3>
                                     <p className="text-sm text-slate-500 mt-1">
                                         {item.store?.store_name} • {item.store?.platform}
@@ -127,16 +166,32 @@ export default function ImportedProducts() {
                                     {item.status}
                                 </span>
                                 <div className="flex gap-1">
-                                    <button className="p-2 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-700">
+                                    <button
+                                        onClick={() => handleView(item)}
+                                        className="p-2 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-700"
+                                        title="View product"
+                                    >
                                         <HiEye className="w-4 h-4 text-slate-500" />
                                     </button>
-                                    <button className="p-2 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-700">
+                                    <button
+                                        onClick={() => handleEdit(item)}
+                                        className="p-2 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-700"
+                                        title="Edit product"
+                                    >
                                         <HiPencil className="w-4 h-4 text-slate-500" />
                                     </button>
-                                    <button className="p-2 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-700">
+                                    <button
+                                        onClick={() => handleSync(item)}
+                                        className="p-2 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-700"
+                                        title="Publish to store"
+                                    >
                                         <HiRefresh className="w-4 h-4 text-slate-500" />
                                     </button>
-                                    <button className="p-2 rounded-lg hover:bg-red-100 dark:hover:bg-red-900/20">
+                                    <button
+                                        onClick={() => handleDelete(item.id)}
+                                        className="p-2 rounded-lg hover:bg-red-100 dark:hover:bg-red-900/20"
+                                        title="Delete product"
+                                    >
                                         <HiTrash className="w-4 h-4 text-red-500" />
                                     </button>
                                 </div>

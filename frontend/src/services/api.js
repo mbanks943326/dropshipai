@@ -57,6 +57,7 @@ export const productsAPI = {
     analyze: (productId) => api.post(`/products/${productId}/analyze`),
     import: (data) => api.post('/products/import', data),
     getImported: (params) => api.get('/products/imported/list', { params }),
+    deleteImported: (id) => api.delete(`/products/imported/${id}`),
 };
 
 export const aiAPI = {

@@ -379,4 +379,38 @@ router.get('/imported/list', authenticate, asyncHandler(async (req, res) => {
     });
 }));
 
+// @route   DELETE /api/products/imported/:id
+// @desc    Delete imported product
+// @access  Private
+router.delete('/imported/:id', authenticate, asyncHandler(async (req, res) => {
+    const { id } = req.params;
+
+    // Verify product belongs to user
+    const { data: product } = await supabaseAdmin
+        .from('imported_products')
+        .select('id')
+        .eq('id', id)
+        .eq('user_id', req.user.id)
+        .single();
+
+    if (!product) {
+        throw new AppError('Product not found', 404, 'PRODUCT_NOT_FOUND');
+    }
+
+    // Delete product
+    const { error } = await supabaseAdmin
+        .from('imported_products')
+        .delete()
+        .eq('id', id);
+
+    if (error) {
+        throw new AppError('Failed to delete product', 500);
+    }
+
+    res.json({
+        success: true,
+        message: 'Product deleted successfully'
+    });
+}));
+
 export default router;
