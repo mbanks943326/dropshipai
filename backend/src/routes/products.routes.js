@@ -379,6 +379,72 @@ router.get('/imported/list', authenticate, asyncHandler(async (req, res) => {
     });
 }));
 
+// @route   PUT /api/products/imported/:id
+// @desc    Update imported product
+// @access  Private
+router.put('/imported/:id', authenticate, [
+    body('custom_title').optional().trim(),
+    body('custom_description').optional().trim(),
+    body('custom_price').optional().isFloat({ min: 0 }),
+    body('markup_percentage').optional().isFloat({ min: 0, max: 500 })
+], asyncHandler(async (req, res) => {
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+        return res.status(400).json({ success: false, errors: errors.array() });
+    }
+
+    const { id } = req.params;
+    const {
+        custom_title,
+        custom_description,
+        custom_price,
+        markup_percentage
+    } = req.body;
+
+    // Verify product belongs to user
+    const { data: existingProduct } = await supabaseAdmin
+        .from('imported_products')
+        .select('*')
+        .eq('id', id)
+        .eq('user_id', req.user.id)
+        .single();
+
+    if (!existingProduct) {
+        throw new AppError('Product not found', 404, 'PRODUCT_NOT_FOUND');
+    }
+
+    // Calculate new values if price or markup changed
+    const costPrice = existingProduct.cost_price;
+    const newPrice = custom_price || existingProduct.custom_price;
+    const newMarkup = markup_percentage !== undefined ? markup_percentage : existingProduct.markup_percentage;
+    const profitMargin = newPrice - costPrice;
+
+    // Update product
+    const { data: updatedProduct, error } = await supabaseAdmin
+        .from('imported_products')
+        .update({
+            custom_title,
+            custom_description,
+            custom_price: newPrice,
+            markup_percentage: newMarkup,
+            profit_margin: profitMargin,
+            updated_at: new Date().toISOString()
+        })
+        .eq('id', id)
+        .select()
+        .single();
+
+    if (error) {
+        console.error('Update error:', error);
+        throw new AppError('Failed to update product: ' + error.message, 500);
+    }
+
+    res.json({
+        success: true,
+        data: updatedProduct
+    });
+}));
+
 // @route   DELETE /api/products/imported/:id
 // @desc    Delete imported product
 // @access  Private

@@ -2,11 +2,15 @@ import { useState, useEffect } from 'react';
 import { productsAPI } from '../services/api';
 import toast from 'react-hot-toast';
 import { HiCollection, HiPencil, HiTrash, HiEye, HiRefresh } from 'react-icons/hi';
+import ProductViewModal from '../components/ProductViewModal';
+import ProductEditModal from '../components/ProductEditModal';
 
 export default function ImportedProducts() {
     const [products, setProducts] = useState([]);
     const [loading, setLoading] = useState(true);
     const [filter, setFilter] = useState('all');
+    const [viewModal, setViewModal] = useState(null);
+    const [editModal, setEditModal] = useState(null);
 
     useEffect(() => {
         fetchProducts();
@@ -25,13 +29,11 @@ export default function ImportedProducts() {
     };
 
     const handleView = (product) => {
-        // TODO: Implement product preview modal
-        toast('Preview feature coming soon!', { icon: '👁️' });
+        setViewModal(product);
     };
 
     const handleEdit = (product) => {
-        // TODO: Implement edit modal
-        toast('Edit feature coming soon!', { icon: '✏️' });
+        setEditModal(product);
     };
 
     const handleSync = async (product) => {
@@ -209,6 +211,21 @@ export default function ImportedProducts() {
                         Start by searching for products and importing them to your store.
                     </p>
                 </div>
+            )}
+
+            {/* Modals */}
+            {viewModal && (
+                <ProductViewModal
+                    product={viewModal}
+                    onClose={() => setViewModal(null)}
+                />
+            )}
+            {editModal && (
+                <ProductEditModal
+                    product={editModal}
+                    onClose={() => setEditModal(null)}
+                    onSave={fetchProducts}
+                />
             )}
         </div>
     );
